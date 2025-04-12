@@ -1,0 +1,29 @@
+Part#1
+docker build --tag python-django .
+docker run --publish 8000:8000 python-django
+Part#2
+docker-compose build
+docker-compose run --rm app django-admin startproject core .
+docker-compose up
+Part#3
+docker-compose build
+docker-compose run --rm app django-admin startproject core .
+docker-compose up
+#to connect with terminal in a container
+docker exec -it django_container /bin/bash
+
+
+PART#4
+docker-compose build
+docker-compose run --rm app django-admin startproject core .
+docker-compose up
+docker compose run --rm app sh   
+docker restart container_name
+Part#4
+docker-compose run django_app sh -c "django-admin startapp newapp ."
+docker exec -it django_app sh
+
+#Run Celery Task
+    python manage.py shell
+    from newapp.tasks import add
+    add.delay(2, 2)
