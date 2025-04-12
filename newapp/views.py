@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from .tasks import celery_send
 import re
+from .forms import EmailForm
 
 # Create your views here.
 def home(request):
@@ -29,7 +30,7 @@ def anon_email_old(request):
         return HttpResponse("Sending...")
     return render(request, "newapp/anon_email.html")
 
-def anon_email(request):
+def anon_email_without_form(request):
     if request.method == 'POST':
         subject = request.POST.get("subject", "").strip()
         body = request.POST.get("body", "").strip()
@@ -48,4 +49,22 @@ def anon_email(request):
             "success": "Email has been sent"
         })
 
-    return render(request, "newapp/anon_email.html")
+    return render(request, "newapp/anon_email_without_form.html")
+
+def anon_email(request):
+    form = EmailForm()
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            # Form is valid, handle the email sending
+            subject = form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            recipient = form.cleaned_data['recipient']
+
+            # Call the Celery task to send the email
+            celery_send.delay(subject, body, recipient)
+            return HttpResponse("Sending...")
+        else:
+            # If the form is invalid, re-render the form with error messages
+            return render(request, "newapp/anon_email.html", {'form': form, 'error': 'Please correct the errors below.'})
+    return render(request, "newapp/anon_email.html", {'form':form})
