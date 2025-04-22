@@ -6,7 +6,7 @@ services:
     container_name: redis
 
   db:
-    image: postgres
+    image: postgres:latest
     container_name: postgres_db
     volumes:
       - ./data/db:/var/lib/postgresql/data
@@ -16,7 +16,7 @@ services:
   app:
     build: .
     image: app:django
-    container_name: django_app
+    container_name: django_app_4
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/django
